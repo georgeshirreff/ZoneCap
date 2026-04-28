@@ -1,17 +1,17 @@
 library(tidyverse)
 
-load(verbose = T, file = "INSEEage/Cleaned/dep_pop.RData")
-load(verbose = T, file = "INSEEage/Cleaned/reg_pop.RData")
-load(verbose = T, file = "INSEEage/Cleaned/dep_pop_age.RData")
-load(verbose = T, file = "INSEEage/Cleaned/reg_pop_age.RData")
+load(verbose = T, file = "data/INSEEage/Cleaned/dep_pop.RData")
+load(verbose = T, file = "data/INSEEage/Cleaned/reg_pop.RData")
+load(verbose = T, file = "data/INSEEage/Cleaned/dep_pop_age.RData")
+load(verbose = T, file = "data/INSEEage/Cleaned/reg_pop_age.RData")
 
-load(verbose = T, file = "INSEEage/Cleaned/pmsi_postcode.RData")
-
-
-DiagCat_translation <- openxlsx::read.xlsx("ATIH/diag_translation.xlsx")
+load(verbose = T, file = "data/INSEEage/Cleaned/pmsi_postcode.RData")
 
 
-pmsi_countries <- readxl::read_excel("ATIH/PMSIcode_pays.xlsx") %>% 
+DiagCat_translation <- openxlsx::read.xlsx("data/ATIH/diag_translation.xlsx")
+
+
+pmsi_countries <- readxl::read_excel("data/ATIH/PMSIcode_pays.xlsx") %>% 
   {bind_rows(tibble(PMSIcode = "99999", Pays = "UNKNOWN", Subregion = 0), 
              tibble(PMSIcode = "98000", Pays = "MONACO", Subregion = 0), 
              .)} %>% 
@@ -34,139 +34,139 @@ age20_vec = c("0-18", "19-40", "41-60", "61-80", "81+")
 ##### reading data #####
 
 reg_year_all_raw <- purrr::map(2016:2025, ~{
-  readxl::read_excel(paste0("ATIH/FINESS/mco_MET_", .x, "_ALL_REG_NoAge.xlsx"), skip = 1) %>% 
+  readxl::read_excel(paste0("data/ATIH/FINESS/mco_MET_", .x, "_ALL_REG_NoAge.xlsx"), skip = 1) %>% 
     mutate(Year = .x)
 }) %>% 
   {do.call("rbind", .)}
 
 reg_year_finess_raw <- purrr::map(2016:2025, ~{
-  readxl::read_excel(paste0("ATIH/FINESS/mco_MET_", .x, "_FINESS_REG_NoAge.xlsx"), skip = 1) %>% 
+  readxl::read_excel(paste0("data/ATIH/FINESS/mco_MET_", .x, "_FINESS_REG_NoAge.xlsx"), skip = 1) %>% 
     mutate(Year = .x)
 }) %>% 
   {do.call("rbind", .)}
 
 reg_age20year_all_raw <- purrr::map(2016:2025, ~{
-  readxl::read_excel(paste0("ATIH/FINESS/mco_MET_", .x, "_ALL_REG_Age.xlsx"), skip = 1) %>% 
+  readxl::read_excel(paste0("data/ATIH/FINESS/mco_MET_", .x, "_ALL_REG_Age.xlsx"), skip = 1) %>% 
     mutate(Year = .x)
 }) %>% 
   {do.call("rbind", .)}
 
 reg_age20year_finess_raw <- purrr::map(2016:2025, ~{
-  readxl::read_excel(paste0("ATIH/FINESS/mco_MET_", .x, "_FINESS_REG_Age.xlsx"), skip = 1) %>% 
+  readxl::read_excel(paste0("data/ATIH/FINESS/mco_MET_", .x, "_FINESS_REG_Age.xlsx"), skip = 1) %>% 
     mutate(Year = .x)
 }) %>% 
   {do.call("rbind", .)}
 
 reg_age20year_hcl_raw <- purrr::map(2016:2025, ~{
-  readxl::read_excel(paste0("ATIH/RegHCL/mco_MET_HCL_", .x, "_REG Age.xlsx"), skip = 1) %>% 
+  readxl::read_excel(paste0("data/ATIH/RegHCL/mco_MET_HCL_", .x, "_REG Age.xlsx"), skip = 1) %>% 
     mutate(Year = .x)
 }) %>% 
   {do.call("rbind", .)}
 
 
 dep_year_all_raw <- purrr::map(2016:2025, ~{
-  readxl::read_excel(paste0("ATIH/FINESS/mco_MET_", .x, "_ALL_DEP_NoAge.xlsx"), skip = 1) %>% 
+  readxl::read_excel(paste0("data/ATIH/FINESS/mco_MET_", .x, "_ALL_DEP_NoAge.xlsx"), skip = 1) %>% 
     mutate(Year = .x)
 }) %>% 
   {do.call("rbind", .)}
 
 dep_year_finess_raw <- purrr::map(2016:2025, ~{
-  readxl::read_excel(paste0("ATIH/FINESS/mco_MET_", .x, "_FINESS_DEP_NoAge.xlsx"), skip = 1) %>% 
+  readxl::read_excel(paste0("data/ATIH/FINESS/mco_MET_", .x, "_FINESS_DEP_NoAge.xlsx"), skip = 1) %>% 
     mutate(Year = .x)
 }) %>% 
   {do.call("rbind", .)}
 
 dep_age20year_all_raw <- purrr::map(2016:2025, ~{
-  readxl::read_excel(paste0("ATIH/FINESS/mco_MET_", .x, "_ALL_DEP_Age.xlsx"), skip = 1) %>% 
+  readxl::read_excel(paste0("data/ATIH/FINESS/mco_MET_", .x, "_ALL_DEP_Age.xlsx"), skip = 1) %>% 
     mutate(Year = .x)
 }) %>% 
   {do.call("rbind", .)}
 
 dep_age20year_finess_raw <- purrr::map(2016:2025, ~{
-  readxl::read_excel(paste0("ATIH/FINESS/mco_MET_", .x, "_FINESS_DEP_Age.xlsx"), skip = 1) %>% 
+  readxl::read_excel(paste0("data/ATIH/FINESS/mco_MET_", .x, "_FINESS_DEP_Age.xlsx"), skip = 1) %>% 
     mutate(Year = .x)
 }) %>% 
   {do.call("rbind", .)}
 
 
 pmsi_year_all_raw <- purrr::map(2016:2025, ~{
-  readxl::read_excel(paste0("ATIH/FINESS/mco_MET_", .x, "_ALL_PMSI_NoAge.xlsx"), skip = 1) %>% 
+  readxl::read_excel(paste0("data/ATIH/FINESS/mco_MET_", .x, "_ALL_PMSI_NoAge.xlsx"), skip = 1) %>% 
     mutate(Year = .x)
 }) %>% 
   {do.call("rbind", .)}
 
 pmsi_year_finess_raw <- purrr::map(2016:2025, ~{
-  readxl::read_excel(paste0("ATIH/FINESS/mco_MET_", .x, "_FINESS_PMSI_NoAge.xlsx"), skip = 1) %>% 
+  readxl::read_excel(paste0("data/ATIH/FINESS/mco_MET_", .x, "_FINESS_PMSI_NoAge.xlsx"), skip = 1) %>% 
     mutate(Year = .x)
 }) %>% 
   {do.call("rbind", .)}
 
 pmsi_age20year_all_raw <- purrr::map(2016:2025, ~{
-  readxl::read_excel(paste0("ATIH/FINESS/mco_MET_", .x, "_ALL_PMSI_Age.xlsx"), skip = 1) %>% 
+  readxl::read_excel(paste0("data/ATIH/FINESS/mco_MET_", .x, "_ALL_PMSI_Age.xlsx"), skip = 1) %>% 
     mutate(Year = .x)
 }) %>% 
   {do.call("rbind", .)}
 
 pmsi_age20year_finess_raw <- purrr::map(2016:2025, ~{
-  readxl::read_excel(paste0("ATIH/FINESS/mco_MET_", .x, "_FINESS_PMSI_Age.xlsx"), skip = 1) %>% 
+  readxl::read_excel(paste0("data/ATIH/FINESS/mco_MET_", .x, "_FINESS_PMSI_Age.xlsx"), skip = 1) %>% 
     mutate(Year = .x)
 }) %>% 
   {do.call("rbind", .)}
 
 
 depDOM_year_all_raw <- purrr::map(2016:2025, ~{
-  readxl::read_excel(paste0("ATIH/FINESSdom/mco_DOMTOM_", .x, "_ALL_DEP_NoAge.xlsx"), skip = 1) %>% 
+  readxl::read_excel(paste0("data/ATIH/FINESSdom/mco_DOMTOM_", .x, "_ALL_DEP_NoAge.xlsx"), skip = 1) %>% 
     mutate(Year = .x)
 }) %>% 
   {do.call("rbind", .)}
 
 depDOM_year_finess_raw <- purrr::map(2016:2025, ~{
-  readxl::read_excel(paste0("ATIH/FINESSdom/mco_DOMTOM_", .x, "_FINESS_DEP_NoAge.xlsx"), skip = 1) %>% 
+  readxl::read_excel(paste0("data/ATIH/FINESSdom/mco_DOMTOM_", .x, "_FINESS_DEP_NoAge.xlsx"), skip = 1) %>% 
     mutate(Year = .x)
 }) %>% 
   {do.call("rbind", .)}
 
 
 depEVERY_year_all_raw <- purrr::map(2016:2025, ~{
-  readxl::read_excel(paste0("ATIH/RegDep_NoAges/mco_", .x, "_DEP.xlsx"), skip = 1) %>% 
+  readxl::read_excel(paste0("data/ATIH/RegDep_NoAges/mco_", .x, "_DEP.xlsx"), skip = 1) %>% 
     mutate(Year = .x)
 }) %>% 
   {do.call("rbind", .)}
 
 
 pmsi_year_finessgeo_raw <- purrr::map(2016:2025, ~{
-  readxl::read_excel(paste0("ATIH/FINESSGeo/mco_MET_", .x, "_FINESS-Geo_PMSI.xlsx"), skip = 1) %>% 
+  readxl::read_excel(paste0("data/ATIH/FINESSGeo/mco_MET_", .x, "_FINESS-Geo_PMSI.xlsx"), skip = 1) %>% 
     mutate(Year = .x)
 }) %>% 
   {do.call("rbind", .)}
 
 dep_year_finessgeo_raw <- purrr::map(2016:2025, ~{
-  readxl::read_excel(paste0("ATIH/FINESSGeo/mco_MET_", .x, "_FINESS-Geo_DEP.xlsx"), skip = 1) %>% 
+  readxl::read_excel(paste0("data/ATIH/FINESSGeo/mco_MET_", .x, "_FINESS-Geo_DEP.xlsx"), skip = 1) %>% 
     mutate(Year = .x)
 }) %>% 
   {do.call("rbind", .)}
 
 pmsiDOM_year_finessgeo_raw <- purrr::map(2016:2025, ~{
-  readxl::read_excel(paste0("ATIH/FINESSGeo/mco_DOM_", .x, "_FINESS-Geo_PMSI.xlsx"), skip = 1) %>% 
+  readxl::read_excel(paste0("data/ATIH/FINESSGeo/mco_DOM_", .x, "_FINESS-Geo_PMSI.xlsx"), skip = 1) %>% 
     mutate(Year = .x)
 }) %>% 
   {do.call("rbind", .)}
 
 depDOM_year_finessgeo_raw <- purrr::map(2016:2025, ~{
-  readxl::read_excel(paste0("ATIH/FINESSGeo/mco_DOM_", .x, "_FINESS-Geo_DEP.xlsx"), skip = 1) %>% 
+  readxl::read_excel(paste0("data/ATIH/FINESSGeo/mco_DOM_", .x, "_FINESS-Geo_DEP.xlsx"), skip = 1) %>% 
     mutate(Year = .x)
 }) %>% 
   {do.call("rbind", .)}
 
 
 dep_year_diag_all_raw <- purrr::map(2016:2025, ~{
-  readxl::read_excel(paste0("ATIH/DiagCat/mco_MET_", .x, "_DiagCat_DEP.xlsx"), skip = 1) %>% 
+  readxl::read_excel(paste0("data/ATIH/DiagCat/mco_MET_", .x, "_DiagCat_DEP.xlsx"), skip = 1) %>% 
     mutate(Year = .x)
 }) %>% 
   {do.call("rbind", .)}
 
 dep_year_diag_finess_raw <- purrr::map(2016:2025, ~{
-  readxl::read_excel(paste0("ATIH/DiagCat/mco_MET_", .x, "_FINESS-DiagCat_DEP.xlsx"), skip = 1) %>% 
+  readxl::read_excel(paste0("data/ATIH/DiagCat/mco_MET_", .x, "_FINESS-DiagCat_DEP.xlsx"), skip = 1) %>% 
     mutate(Year = .x)
 }) %>% 
   {do.call("rbind", .)}
@@ -174,14 +174,14 @@ dep_year_diag_finess_raw <- purrr::map(2016:2025, ~{
 
 gr <- expand.grid(list(Year = 2016:2025, age_group = age_vec))
 dep_ageyear_all_raw <- purrr::map2(.x = gr$Year, .y = gr$age_group, ~{
-  readxl::read_excel(paste0("ATIH/FIRESPages/mco_MET_", .y, "_", .x, "_ALL_DEP.xlsx"), skip = 1) %>% 
+  readxl::read_excel(paste0("data/ATIH/FIRESPages/mco_MET_", .y, "_", .x, "_ALL_DEP.xlsx"), skip = 1) %>% 
     mutate(Year = .x, 
            age_group = .y)
 }) %>% 
   {do.call("rbind", .)}
 
 dep_ageyear_hcl_raw <- purrr::map2(.x = gr$Year, .y = gr$age_group, ~{
-  readxl::read_excel(paste0("ATIH/FIRESPages/mco_MET_", .y, "_", .x, "_FINESSHCL_DEP.xlsx"), skip = 1) %>% 
+  readxl::read_excel(paste0("data/ATIH/FIRESPages/mco_MET_", .y, "_", .x, "_FINESSHCL_DEP.xlsx"), skip = 1) %>% 
     mutate(Year = .x, 
            age_group = .y) %>% 
     select(-starts_with("Finess"))
@@ -190,14 +190,14 @@ dep_ageyear_hcl_raw <- purrr::map2(.x = gr$Year, .y = gr$age_group, ~{
 
 
 dep_age0year_all_raw <- purrr::map(.x = 2016:2025, ~{
-  readxl::read_excel(paste0("ATIH/FIRESPages/mco_MET_", "0_", .x, "_ALL_DEP.xlsx"), skip = 1) %>% 
+  readxl::read_excel(paste0("data/ATIH/FIRESPages/mco_MET_", "0_", .x, "_ALL_DEP.xlsx"), skip = 1) %>% 
     mutate(Year = .x, 
            age_group = 0)
 }) %>% 
   {do.call("rbind", .)}
 
 dep_age0year_hcl_raw <- purrr::map(.x = 2016:2025, ~{
-  readxl::read_excel(paste0("ATIH/FIRESPages/mco_MET_", "0_", .x, "_FINESSHCL_DEP.xlsx"), skip = 1) %>% 
+  readxl::read_excel(paste0("data/ATIH/FIRESPages/mco_MET_", "0_", .x, "_FINESSHCL_DEP.xlsx"), skip = 1) %>% 
     mutate(Year = .x, 
            age_group = 0)
 }) %>% 
@@ -208,14 +208,14 @@ dep_age0year_hcl_raw <- purrr::map(.x = 2016:2025, ~{
 
 gr_ara <- expand.grid(list(Year = 2019:2025, age_group = age_vec))
 pmsi_ageyear_all_raw <- purrr::map2(.x = gr_ara$Year, .y = gr_ara$age_group, ~{
-  readxl::read_excel(paste0("ATIH/FIRESPages/mco_MET_", .y, "_", .x, "_ALL_PMSI.xlsx"), skip = 1) %>% 
+  readxl::read_excel(paste0("data/ATIH/FIRESPages/mco_MET_", .y, "_", .x, "_ALL_PMSI.xlsx"), skip = 1) %>% 
     mutate(Year = .x, 
            age_group = .y)
 }) %>% 
   {do.call("rbind", .)}
 
 pmsi_ageyear_hcl_raw <- purrr::map2(.x = gr_ara$Year, .y = gr_ara$age_group, ~{
-  readxl::read_excel(paste0("ATIH/FIRESPages/mco_MET_", .y, "_", .x, "_FINESSHCL_PMSI.xlsx"), skip = 1) %>% 
+  readxl::read_excel(paste0("data/ATIH/FIRESPages/mco_MET_", .y, "_", .x, "_FINESSHCL_PMSI.xlsx"), skip = 1) %>% 
     mutate(Year = .x, 
            age_group = .y) %>% 
     select(-starts_with("Finess"))

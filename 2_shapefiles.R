@@ -8,7 +8,8 @@ area_reg <- read_csv2("Shapefiles/Region_Area.csv") %>%
 
 # https://data-interne.ademe.fr/datasets/geo-contours-regions
 # https://data-interne.ademe.fr/data-fair/api/v1/datasets/geo-contours-regions/data-files/GEO_Contours_Regions.zip
-shp_reg <- read_sf("Shapefiles/GEO_Contours_Regions/Regions.shp") %>% 
+
+shp_reg <- read_sf("/vsizip/Shapefiles/GEO_Contours_Regions.zip") %>% 
   select(-DREG_L_LIB) %>% 
   rename(RegCode = DREG_C_COD) %>% 
   filter(!(RegCode %in% paste0("0", 1:6))) %>% 
@@ -34,7 +35,7 @@ shp_reg %>%
 
 # https://www.data.gouv.fr/datasets/contours-des-departements-francais-issus-d-openstreetmap
 # https://www.data.gouv.fr/api/1/datasets/r/eb36371a-761d-44a8-93ec-3d728bec17ce
-shp_dep <- read_sf("Shapefiles/departements-20180101-shp/departements-20180101.shp") %>% 
+shp_dep <- read_sf("/vsizip/Shapefiles/departements-20180101-shp.zip") %>% 
   transmute(DepCode = code_insee, DepName = nom, Area_km2 = surf_km2) %>% 
   filter(!(DepCode %in% c(971:976))) %>% 
   mutate(DepName = ifelse(DepCode %in% c("69M", "69D"), "Rhône", DepName), 
@@ -42,7 +43,7 @@ shp_dep <- read_sf("Shapefiles/departements-20180101-shp/departements-20180101.s
   group_by(DepCode, DepName) %>% 
   summarise(Area_km2 = sum(Area_km2))
 
-shp_depDOM <- read_sf("Shapefiles/departements-20180101-shp/departements-20180101.shp") %>% 
+shp_depDOM <- read_sf("/vsizip/Shapefiles/departements-20180101-shp.zip") %>% 
   transmute(DepCode = code_insee, DepName = nom, Area_km2 = surf_km2) %>% 
   filter((DepCode %in% c(971:976)))
 
@@ -66,7 +67,7 @@ shp_dep %>%
 # postcode
 
 # https://www.data.gouv.fr/datasets/fond-de-carte-des-codes-postaux
-shp_postcode_raw <- read_sf("Shapefiles/codes_postaux_V5/codes_postaux_region.shp")
+shp_postcode_raw <- read_sf("/vsizip/Shapefiles/codes_postaux_V5.zip")
 
 
 shp_postcode <- shp_postcode_raw %>% 
@@ -136,7 +137,7 @@ save(shp_pmsi, file = "Shapefiles/Cleaned/shp_pmsi.RData")
 # FINESS
 
 finess_ref <- purrr::map(c(2016:2025), ~{
-  readxl::read_excel(paste0("ATIH/FINESSref/mco_", .x, "_DEP_FINESS.xlsx"), skip = 1) %>% 
+  readxl::read_excel(paste0("data/ATIH/FINESSref/mco_", .x, "_DEP_FINESS.xlsx"), skip = 1) %>% 
     mutate(Year = .x)
 }) %>% 
   {do.call("rbind", .)} %>% 

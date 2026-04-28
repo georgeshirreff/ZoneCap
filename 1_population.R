@@ -3,7 +3,7 @@ age_vec = c("0-1", "2-4", "5-17", "18-64", "65-79", "80+")
 
 # a file containing the complete list of departements and their regions
 # https://www.insee.fr/fr/statistiques/2012692
-dep_reg <- readxl::read_excel("INSEEage/Cleaned/dep_reg.xlsx") %>% 
+dep_reg <- readxl::read_excel("data/INSEEage/Cleaned/dep_reg.xlsx") %>% 
   rename(DepName = Dep, RegName = Reg) %>% 
   mutate(DepCode = paste0(ifelse(nchar(DepCode) == 1, "0", ""), DepCode), 
          RegCode = paste0(ifelse(nchar(RegCode) == 1, "0", ""), RegCode)) %>% 
@@ -15,7 +15,7 @@ y = 2024
 # https://www.insee.fr/fr/statistiques/fichier/8331297/estim-pop-dep-sexe-aq-1975-2025.xlsx
 dep_pop <- map_df(2016:2025, 
                   .f = function(y){
-                    readxl::read_excel("INSEEage/estim-pop-dep-sexe-aq-1975-2025.xlsx", sheet = as.character(y), skip = 4, .name_repair = "unique_quiet") %>% 
+                    readxl::read_excel("data/INSEEage/estim-pop-dep-sexe-aq-1975-2025.xlsx", sheet = as.character(y), skip = 4, .name_repair = "unique_quiet") %>% 
                       select(`...1`:`Total...23`) %>% 
                       select(-`Total...23`) %>% 
                       rename(DepCode = `...1`, DepName = `...2`) %>% 
@@ -41,7 +41,7 @@ dep_reg %>%
 # https://www.insee.fr/fr/statistiques/fichier/8331297/estim-pop-nreg-sexe-aq-1975-2025.xlsx
 reg_pop <- map_df(2016:2025, 
                   .f = function(y){
-                    readxl::read_excel("INSEEage/estim-pop-nreg-sexe-aq-1975-2025.xlsx", sheet = as.character(y), skip = 4, .name_repair = "unique_quiet") %>% 
+                    readxl::read_excel("data/INSEEage/estim-pop-nreg-sexe-aq-1975-2025.xlsx", sheet = as.character(y), skip = 4, .name_repair = "unique_quiet") %>% 
                       select(`...1`:`Total...22`) %>% 
                       select(-`Total...22`) %>% 
                       rename(RegName = `...1`) %>%
@@ -72,7 +72,7 @@ dep_pop %>%
 # postcode_pmsi_pop_raw <- readxl::read_excel("ScanSanté/codepost2024.xlsx", sheet = "table")
 # y = 2016
 postcode_pmsi_pop_year_raw <- purrr::map(2016:2025, function(y) {
-  readxl::read_excel(paste0("ATIH/codepost", y, ".xlsx"), sheet = "table") %>% 
+  readxl::read_excel(paste0("data/ATIH/codepost", y, ".xlsx"), sheet = "table") %>% 
     transmute(Postcode = get(paste0("Code postal ",y)), 
               Postcode_Name = `Libellé poste`,
               PMSIcode = get(paste0("Code géographique PMSI ", y)), 
@@ -171,10 +171,10 @@ project_pop <- function(pmsi_orig, pmsi_vec){
 
 pmsi_pop <- project_pop(pmsi_pop_to2025, pmsi_vec = c("69600", "69310"))
 
-save(dep_pop, file = "INSEEage/Cleaned/dep_pop.RData")
-save(reg_pop, file = "INSEEage/Cleaned/reg_pop.RData")
-save(pmsi_pop, file = "INSEEage/Cleaned/pmsi_pop.RData")
-save(pmsi_postcode, file = "INSEEage/Cleaned/pmsi_postcode.RData")
+save(dep_pop, file = "data/INSEEage/Cleaned/dep_pop.RData")
+save(reg_pop, file = "data/INSEEage/Cleaned/reg_pop.RData")
+save(pmsi_pop, file = "data/INSEEage/Cleaned/pmsi_pop.RData")
+save(pmsi_postcode, file = "data/INSEEage/Cleaned/pmsi_postcode.RData")
 
 # now broken down by age
 
@@ -186,7 +186,7 @@ age_cuts = c(0, 2, 5, 18, 65, 80, 200)
 # Sources: 1990-2023 Recensement de la population- 2024-2026 Estimations localisées de population
 # Champ: France hors Mayotte jusqu'en 2013, France à partir de 2014
 # https://www.insee.fr/fr/outil-interactif/5014911/data/FR/donnees_pyramide_act.csv
-francemet_age <- read_csv2("INSEEage/donnees_pyramide_act.csv") %>% 
+francemet_age <- read_csv2("data/INSEEage/donnees_pyramide_act.csv") %>% 
   transmute(Year = ANNEE, Sex = SEXE, Age = AGE, Pop = POP) %>% 
   group_by(Age, Year) %>% summarise(Pop = sum(Pop)) %>% 
   filter(Year >= 2010) %>% 
@@ -272,13 +272,13 @@ dep_pop_age20 %>%
 # https://www.data.gouv.fr/datasets/base-officielle-des-codes-postaux/
 # https://www.data.gouv.fr/api/1/datasets/r/008a2dda-2c60-4b63-b910-998f6f818089
 # 019HexaSmal.csv
-linker <- read_csv2("INSEEage/Codes_INSEE_postal.csv", locale=locale(encoding="latin1")) %>% 
+linker <- read_csv2("data/INSEEage/Codes_INSEE_postal.csv", locale=locale(encoding="latin1")) %>% 
   # slice(1:30000) %>% 
   mutate(across(starts_with("Code"), ~paste0(ifelse(nchar(.x) == 4, "0", ""), .x))) %>% 
   transmute(CODGEO = Code_commune_INSEE, POSTCODE_GEO = Code_postal, NOM = Nom_de_la_commune) %>% 
   dplyr::rows_insert(tibble(CODGEO = "01330", POSTCODE_GEO = "01260", NOM = "RUFFIEU"))
 
-linker2 <- read_csv2("INSEEage/correspondance-code-cedex-code-insee.csv") %>% 
+linker2 <- read_csv2("data/INSEEage/correspondance-code-cedex-code-insee.csv") %>% 
   transmute(CODGEO = `Code INSEE`, Postcode = `Code Postal / CEDEX`, Type = `Type de code`) %>% 
   filter(Type == "Code Postal") %>% 
   filter(!is.na(CODGEO)) %>% 
@@ -429,10 +429,10 @@ pmsi_pop_age %>%
   ggplot(aes(x = Pop, y = pmsiSumPop)) + geom_point() + 
   scale_x_log10() + scale_y_log10()
 
-save(dep_pop_age, file = "INSEEage/Cleaned/dep_pop_age.RData")
-save(reg_pop_age, file = "INSEEage/Cleaned/reg_pop_age.RData")
-save(pmsi_pop_age, file = "INSEEage/Cleaned/pmsi_pop_age.RData")
-save(pmsi_pop_age20, file = "INSEEage/Cleaned/pmsi_pop_age20.RData")
+save(dep_pop_age, file = "data/INSEEage/Cleaned/dep_pop_age.RData")
+save(reg_pop_age, file = "data/INSEEage/Cleaned/reg_pop_age.RData")
+save(pmsi_pop_age, file = "data/INSEEage/Cleaned/pmsi_pop_age.RData")
+save(pmsi_pop_age20, file = "data/INSEEage/Cleaned/pmsi_pop_age20.RData")
 
 
 reg_pop_age20$RegCode %>% unique
