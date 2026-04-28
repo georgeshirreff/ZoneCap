@@ -3,6 +3,10 @@ Archive/*
 data/Urgences/*
 data/ATIH/*
 
+!data/Urgences/.gitkeep
+!data/ATIH/.gitkeep
+
+
 # History files
 .Rhistory
 .Rapp.history
