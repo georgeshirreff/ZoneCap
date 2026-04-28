@@ -1,5 +1,7 @@
 tmp_src/*
 Archive/*
+data/Urgences/*
+data/ATIH/*
 
 # History files
 .Rhistory
