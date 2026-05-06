@@ -1,27 +1,27 @@
-DiagCat;750712184 - AP-HP;690781810 - HOSPICES CIVILS DE LYON;130786049 - AP-HM;310781406 - CHU TOULOUSE;330781196 - CHU DE BORDEAUX;590780193 - CHRU DE LILLE;670780055 - CHU DE STRASBOURG;540023264 - CHU DE NANCY;440000289 - CHU DE NANTES;380780080 - CHU GRENOBLE ALPES
-22 - Burns;6.1%;12.5%;9.3%;7.2%;11.3%;10.6%;3.9%;6.9%;18.7%;2.6%
-27 - Organ transplants;8.8%;10.1%;7.7%;11.2%;13.2%;14.5%;10.9%;9.9%;10.9%;9.6%
-26 - Severe multiple trauma;6.4%;5.7%;8.4%;6.5%;6.4%;9.1%;5.5%;8.1%;5.2%;7.7%
-17 - Myeloproliferative disorders and neoplasms of uncertain or diffuse site;5.2%;5.0%;6.0%;5.4%;4.6%;6.2%;3.3%;3.6%;4.2%;3.4%
-25 - Diseases due to HIV infection;5.4%;4.4%;5.1%;4.4%;4.9%;1.8%;5.6%;4.6%;4.6%;5.1%
-01 - Disorders of the nervous system;3.8%;4.3%;4.6%;4.5%;4.5%;4.3%;4.5%;5.0%;3.6%;4.7%
-02 - Disorders of the eye;2.5%;4.0%;3.6%;3.3%;4.7%;4.1%;4.8%;2.9%;3.5%;5.1%
-23 - Factors influencing health status and other reasons for use of health services;3.6%;3.8%;2.8%;2.7%;2.7%;2.9%;3.5%;4.3%;3.3%;3.2%
-21 - Injuries, allergies and poisonings;3.6%;3.6%;3.9%;4.9%;3.7%;3.9%;4.3%;4.4%;3.6%;4.5%
-03 - Disorders of the ears, nose, throat, mouth and teeth;3.4%;3.3%;4.4%;3.6%;3.2%;4.5%;3.7%;3.5%;2.8%;4.0%
-16 - Disorders of the blood and hematopoietic organs;4.0%;3.3%;3.3%;3.3%;2.8%;2.6%;2.9%;2.9%;2.7%;3.4%
-05 - Disorders of the circulatory system;2.8%;3.2%;3.2%;3.0%;3.2%;2.8%;3.3%;3.0%;3.1%;3.5%
-19 - Mental illnesses and disorders;4.0%;3.1%;3.5%;4.7%;3.5%;1.8%;3.0%;2.4%;4.2%;5.2%
-10 - Endocrine, metabolic and nutritional disorders;3.9%;3.1%;4.0%;3.9%;3.4%;3.2%;3.3%;4.5%;3.4%;3.0%
-04 - Disorders of the respiratory system;3.4%;3.1%;3.2%;3.3%;2.8%;2.6%;3.7%;3.1%;3.3%;3.4%
-18 - Infectious and parasitic diseases;3.7%;2.9%;3.3%;4.1%;3.5%;3.4%;3.6%;3.8%;3.7%;3.6%
-07 - Disorders of the hepatobiliary system and pancreas;3.7%;2.9%;2.7%;2.8%;2.5%;2.9%;3.3%;2.9%;2.1%;3.6%
-06 - Disorders of the digestive tract;3.2%;2.8%;2.6%;2.4%;2.2%;2.4%;2.9%;2.6%;2.2%;3.0%
-08 - Disorders and injuries of the musculoskeletal system and connective tissue;3.0%;2.7%;2.9%;2.2%;2.0%;2.2%;3.0%;4.0%;2.1%;3.2%
-11 - Disorders of the kidney and urinary tract;3.4%;2.6%;2.7%;2.4%;2.2%;2.0%;3.1%;2.7%;2.4%;3.0%
-14 - Pathological pregnancies, childbirth and postpartum disorders;2.4%;2.6%;2.1%;2.0%;2.5%;2.3%;3.6%;2.4%;1.8%;2.6%
-15 - Newborns, premature infants and conditions of the perinatal period;2.3%;2.5%;2.1%;1.9%;2.4%;2.4%;3.5%;2.4%;1.8%;2.6%
-09 - Disorders of the skin, subcutaneous tissue and breasts;2.9%;2.5%;3.0%;2.6%;2.3%;2.4%;2.8%;2.9%;2.5%;3.3%
-13 - Disorders of the female genital system;2.6%;2.2%;2.0%;2.1%;1.8%;2.2%;3.3%;1.7%;1.6%;1.9%
-20 - Organic mental disorders related to or induced by drug use;3.7%;2.0%;1.6%;3.8%;2.3%;1.2%;2.9%;3.5%;1.6%;3.0%
-12 - Disorders of the male genital system;2.3%;1.9%;2.0%;1.8%;1.4%;1.6%;1.9%;1.8%;1.2%;2.0%
+DiagCat;750712184 - AP-HP;690781810 - HOSPICES CIVILS DE LYON;130786049 - AP-HM;310781406 - CHU TOULOUSE;330781196 - CHU DE BORDEAUX;590780193 - CHRU DE LILLE;670780055 - CHU DE STRASBOURG;440000289 - CHU DE NANTES;340780477 - CHU MONTPELLIER;540023264 - CHRU DE NANCY
+22 - Burns;6.1%;12.5%;9.3%;7.2%;11.3%;10.6%;3.9%;18.7%;10.5%;8.0%
+27 - Organ transplants;8.8%;10.1%;7.7%;11.2%;13.2%;14.5%;10.9%;10.9%;13.8%;9.9%
+26 - Severe multiple trauma;6.4%;5.7%;8.4%;6.5%;6.4%;9.1%;5.5%;5.2%;6.1%;8.4%
+17 - Myeloproliferative disorders and neoplasms of uncertain or diffuse site;5.2%;5.0%;6.0%;5.4%;4.6%;6.2%;3.3%;4.2%;3.2%;4.1%
+25 - Diseases due to HIV infection;5.4%;4.4%;5.1%;4.4%;4.9%;1.8%;5.6%;4.6%;4.4%;4.7%
+01 - Disorders of the nervous system;3.8%;4.3%;4.6%;4.5%;4.5%;4.3%;4.5%;3.6%;4.5%;4.6%
+02 - Disorders of the eye;2.5%;4.0%;3.6%;3.3%;4.7%;4.1%;4.8%;3.5%;4.4%;3.1%
+23 - Factors influencing health status and other reasons for use of health services;3.6%;3.8%;2.8%;2.7%;2.7%;2.9%;3.5%;3.3%;2.9%;4.5%
+21 - Injuries, allergies and poisonings;3.6%;3.6%;3.9%;4.9%;3.7%;3.9%;4.3%;3.6%;4.3%;4.0%
+03 - Disorders of the ears, nose, throat, mouth and teeth;3.4%;3.3%;4.4%;3.6%;3.2%;4.5%;3.7%;2.8%;3.8%;3.6%
+16 - Disorders of the blood and hematopoietic organs;4.0%;3.3%;3.3%;3.3%;2.8%;2.6%;2.9%;2.7%;2.4%;2.9%
+05 - Disorders of the circulatory system;2.8%;3.2%;3.2%;3.0%;3.2%;2.8%;3.3%;3.1%;2.7%;2.9%
+19 - Mental illnesses and disorders;4.0%;3.1%;3.5%;4.7%;3.5%;1.8%;3.0%;4.2%;4.6%;2.8%
+10 - Endocrine, metabolic and nutritional disorders;3.9%;3.1%;4.0%;3.9%;3.4%;3.2%;3.3%;3.4%;3.3%;4.1%
+04 - Disorders of the respiratory system;3.4%;3.1%;3.2%;3.3%;2.8%;2.6%;3.7%;3.3%;2.8%;3.0%
+18 - Infectious and parasitic diseases;3.7%;2.9%;3.3%;4.1%;3.5%;3.4%;3.6%;3.7%;3.2%;3.6%
+07 - Disorders of the hepatobiliary system and pancreas;3.7%;2.9%;2.7%;2.8%;2.5%;2.9%;3.3%;2.1%;3.0%;3.0%
+06 - Disorders of the digestive tract;3.2%;2.8%;2.6%;2.4%;2.2%;2.4%;2.9%;2.2%;2.2%;2.9%
+08 - Disorders and injuries of the musculoskeletal system and connective tissue;3.0%;2.7%;2.9%;2.2%;2.0%;2.2%;3.0%;2.1%;2.3%;3.3%
+11 - Disorders of the kidney and urinary tract;3.4%;2.6%;2.7%;2.4%;2.2%;2.0%;3.1%;2.4%;2.1%;2.7%
+14 - Pathological pregnancies, childbirth and postpartum disorders;2.4%;2.6%;2.1%;2.0%;2.5%;2.3%;3.6%;1.8%;2.1%;2.5%
+15 - Newborns, premature infants and conditions of the perinatal period;2.3%;2.5%;2.1%;1.9%;2.4%;2.4%;3.5%;1.8%;2.3%;2.5%
+09 - Disorders of the skin, subcutaneous tissue and breasts;2.9%;2.5%;3.0%;2.6%;2.3%;2.4%;2.8%;2.5%;2.7%;2.5%
+13 - Disorders of the female genital system;2.6%;2.2%;2.0%;2.1%;1.8%;2.2%;3.3%;1.6%;1.6%;1.9%
+20 - Organic mental disorders related to or induced by drug use;3.7%;2.0%;1.6%;3.8%;2.3%;1.2%;2.9%;1.6%;3.5%;2.6%
+12 - Disorders of the male genital system;2.3%;1.9%;2.0%;1.8%;1.4%;1.6%;1.9%;1.2%;1.3%;1.8%

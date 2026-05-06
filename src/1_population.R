@@ -1,3 +1,6 @@
+library(tidyverse)
+library(sf)
+
 # 1 population data
 age_vec = c("0-1", "2-4", "5-17", "18-64", "65-79", "80+")
 
@@ -290,7 +293,7 @@ linker2 <- read_csv2("data/INSEEage/correspondance-code-cedex-code-insee.csv") %
 # POP1B – Population par sexe et âge
 # https://www.insee.fr/fr/statistiques/fichier/8202264/TD_POP1B_2021_csv.zip
 
-insee2021_raw <- read_csv2(file = unz("INSEEage/TD_POP1B_2021.zip", filename = "TD_POP1B_2021.csv"))
+insee2021_raw <- read_csv2(file = unz("data/INSEEage/TD_POP1B_2021.zip", filename = "TD_POP1B_2021.csv")) %>% 
 # insee2021_raw <- read_csv2("INSEEage/TD_POP1B_2021.csv") %>% 
   transmute(CODGEO, LIBGEO, Sex = SEXE, Age = as.numeric(AGED100), Pop2021 = as.numeric(NB))
 

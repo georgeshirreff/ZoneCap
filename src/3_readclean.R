@@ -721,7 +721,7 @@ pmsi_ageyear_hcl <- pmsi_ageyear_hcl_raw %>%
 # Urg ARA'data needs special treatment
 
 
-ara_raw = read_csv2("Urgences/2025_11_20_demande_attractivite_HCL_2019_24.csv")
+ara_raw = read_csv2("data/Urgences/2025_11_20_demande_attractivite_HCL_2019_24.csv")
 
 
 ara_with69000 <- ara_raw %>% 

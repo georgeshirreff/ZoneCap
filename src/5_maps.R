@@ -230,3 +230,60 @@ ggplot() +
 ggsave("output/HCL_sites.png", width = 30, height = 12, units = "cm", dpi = 600)
 
 
+
+
+# out of department hospital usage
+
+dep_diag_outOfDep <- dep_year_diag_catchment_poparea %>% 
+  # filter(grepl("^01", DiagCat)) %>%
+  mutate(DepCode_Hosp = substr(FINESS_Hosp, 1, 2)) %>% 
+  filter(FINESS_Hosp != "Others", DiagCat != "Others", DepCode != "Others") %>% 
+  group_by(DiagCat, Year, DepCode) %>% 
+  summarise(catchmentHosp_inDep = sum(catchmentHosp[DepCode == DepCode_Hosp], na.rm = T), 
+            catchmentHosp = sum(catchmentHosp, na.rm = T)
+  ) %>% 
+  group_by(DiagCat, DepCode) %>% 
+  summarise(catchmentHosp_inDep = mean(catchmentHosp_inDep, na.rm = T), 
+            catchmentHosp = mean(catchmentHosp, na.rm = T)) %>% 
+  mutate(p_inDep = catchmentHosp_inDep/catchmentHosp)
+
+dep_outOfDep <- dep_year_finess_catchment_poparea %>% 
+  mutate(DepCode_Hosp = substr(FINESS_Hosp, 1, 2)) %>% 
+  filter(FINESS_Hosp != "Others", DepCode != "Others") %>% 
+  group_by(Year, DepCode) %>% 
+  summarise(catchmentHosp_inDep = sum(catchmentHosp[DepCode == DepCode_Hosp], na.rm = T), 
+            catchmentHosp = sum(catchmentHosp, na.rm = T)
+  ) %>% 
+  group_by(DepCode) %>% 
+  summarise(catchmentHosp_inDep = mean(catchmentHosp_inDep, na.rm = T), 
+            catchmentHosp = mean(catchmentHosp, na.rm = T)) %>% 
+  mutate(p_inDep = catchmentHosp_inDep/catchmentHosp)
+
+
+outofDep_toPlot <- shp_dep %>% 
+  left_join(
+    rbind(dep_diag_outOfDep %>%
+            filter(grepl("04|19|22|27", DiagCat)), 
+          dep_outOfDep %>% mutate(DiagCat = "Any cause")) %>% 
+      mutate(DiagCat = gsub("([0-9]+) - ", "", DiagCat) %>% 
+               factor(levels = c("Any cause", "Mental illnesses and disorders", "Disorders of the respiratory system", "Burns", "Organ transplants"))) %>%  
+      ungroup %>% 
+      complete(DiagCat, DepCode)
+  )
+
+p1 = outofDep_toPlot %>% filter(DiagCat == "Any cause") %>%
+# p2 = outofDep_toPlot %>% filter(DiagCat != "Any cause") %>%
+  ggplot() + 
+  geom_sf(aes(fill = 1-p_inDep)) + 
+  # scale_fill_gradientn(colours = c("#2C7BB6", "#ABD9E9", "#FDAE61","#D7191C"), na.value = "grey", limits = c(0, 1)) + 
+  scale_fill_gradientn(colours = c("lightyellow", "orange", "red3"), na.value = "grey", limits = c(0, 1)) + 
+  facet_wrap(.~DiagCat)+
+  theme(panel.background = element_blank(), 
+        axis.text = element_blank(), 
+        axis.ticks = element_blank()) + 
+  labs(fill = "Proportion of care\nsought out of department")
+
+
+ggsave(grid_arrange_shared_legend(p1, p2), filename = "output/prop_care_outDep.png", width = 30, height = 20, units = "cm", dpi = 600)
+
+

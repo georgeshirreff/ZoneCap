@@ -220,3 +220,4 @@ FINESScategories = rbind(FINESSref_ej %>% transmute(Year = 2026, FINESS = nofine
                                    T ~ "Other"
   ))
 
+metropole <- read_csv2("Shapefiles/Communes_metropoleLyon.csv")
