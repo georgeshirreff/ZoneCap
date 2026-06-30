@@ -230,6 +230,144 @@ ggplot() +
 ggsave("output/HCL_sites.png", width = 30, height = 12, units = "cm", dpi = 600)
 
 
+# transplant hospitals
+
+
+dep_adult_comp_toPlot <- dep_adult_comp_catchment_poparea %>% 
+  group_by(FINESS_Hosp, RegCode, DepCode) %>% 
+  summarise(n_Hosp = mean(n_Hosp, na.rm = T), catchmentHosp = mean(catchmentHosp, na.rm = T), .groups = "drop") %>% 
+  filter(!is.na(FINESS_Hosp)) %>% 
+  transmute(DepCode = factor(DepCode, dep_levels_met), FINESS_Hosp = FINESS_Hosp %>% fct_drop(only = "ALL"), catchmentHosp) %>% 
+  complete(DepCode, FINESS_Hosp, fill = list(catchmentHosp = NA))
+
+dep_adult_amb_toPlot <- dep_adult_amb_catchment_poparea %>% 
+  group_by(FINESS_Hosp, RegCode, DepCode) %>% 
+  summarise(n_Hosp = mean(n_Hosp, na.rm = T), catchmentHosp = mean(catchmentHosp, na.rm = T), .groups = "drop") %>% 
+  filter(!is.na(FINESS_Hosp)) %>% 
+  transmute(DepCode = factor(DepCode, dep_levels_met), FINESS_Hosp = FINESS_Hosp %>% fct_drop(only = "ALL"), catchmentHosp) %>% 
+  complete(DepCode, FINESS_Hosp, fill = list(catchmentHosp = NA))
+
+
+ggplot() + 
+  geom_sf(data = shp_dep %>% 
+            full_join(
+              # dep_adult_comp_toPlot
+              dep_adult_comp_toPlot %>% 
+                mutate(FINESS_Hosp = as.factor(FINESS_Hosp)) %>% 
+                mutate(FINESS_Hosp = fct_relabel(FINESS_Hosp, .fun = ~gsub("[0-9]+ - ", "", .x))) %>% 
+                mutate(FINESS_Hosp = fct_relabel(FINESS_Hosp, .fun = ~gsub("CENTRE CHIRURGICAL ", "", .x)))
+              
+            ) %>% 
+            # filter(grepl("440000289", Hosp)) %>%
+            mutate(catchment_density = catchmentHosp/Area_km2),
+          aes(fill = catchment_density), linewidth = 0.1, colour = "darkgrey") + 
+  # geom_sf(data = chu_locations %>% 
+  #           filter(!grepl("GRENOBLE", FINESS_Hosp)) %>% 
+  #           mutate(Hosp = gsub(" - ", "\n", FINESS_Hosp), 
+  #                  Hosp = factor(Hosp, levels = levels(finess_toPlot$Hosp)))
+  #         # filter(grepl("440000289", FINESS_Hosp))
+  #         , colour = "red", size = 0.5) + 
+  facet_wrap(.~FINESS_Hosp, nrow = 2) + 
+  # scale_fill_continuous(trans = "log10", 
+  #                       # breaks = c(0.01, 0.1, 1, 10, 100), 
+  #                       # labels = scales::label_number_auto()
+  #                       # labels = c("0.01", "0.1", "1", "10", "100")
+  #                       ) +
+  scale_fill_gradientn(colours = density_colour_scale, trans = "log10", na.value = na_colour) + 
+  theme(panel.background = element_blank(), 
+        axis.text = element_blank(), 
+        axis.ticks = element_blank()) + 
+  labs(fill = "Catchment density\n(persons per km2)")
+
+ggsave("output/transplant_comp_maps.png", width = 30, height = 20, units = "cm")
+
+ggplot() + 
+  geom_sf(data = shp_dep %>% 
+            full_join(
+              # dep_adult_comp_toPlot
+              dep_adult_amb_toPlot %>% 
+                mutate(FINESS_Hosp = as.factor(FINESS_Hosp)) %>% 
+                mutate(FINESS_Hosp = fct_relabel(FINESS_Hosp, .fun = ~gsub("[0-9]+ - ", "", .x))) %>% 
+                mutate(FINESS_Hosp = fct_relabel(FINESS_Hosp, .fun = ~gsub("CENTRE CHIRURGICAL ", "", .x)))
+              
+            ) %>% 
+            # filter(grepl("440000289", Hosp)) %>%
+            mutate(catchment_density = catchmentHosp/Area_km2),
+          aes(fill = catchment_density), linewidth = 0.1, colour = "darkgrey") + 
+  # geom_sf(data = chu_locations %>% 
+  #           filter(!grepl("GRENOBLE", FINESS_Hosp)) %>% 
+  #           mutate(Hosp = gsub(" - ", "\n", FINESS_Hosp), 
+  #                  Hosp = factor(Hosp, levels = levels(finess_toPlot$Hosp)))
+  #         # filter(grepl("440000289", FINESS_Hosp))
+  #         , colour = "red", size = 0.5) + 
+  facet_wrap(.~FINESS_Hosp, nrow = 2) + 
+  # scale_fill_continuous(trans = "log10", 
+  #                       # breaks = c(0.01, 0.1, 1, 10, 100), 
+  #                       # labels = scales::label_number_auto()
+  #                       # labels = c("0.01", "0.1", "1", "10", "100")
+  #                       ) +
+  scale_fill_gradientn(colours = density_colour_scale, trans = "log10", na.value = na_colour) + 
+  theme(panel.background = element_blank(), 
+        axis.text = element_blank(), 
+        axis.ticks = element_blank()) + 
+  labs(fill = "Catchment density\n(persons per km2)")
+
+ggsave("output/transplant_amb_maps.png", width = 30, height = 20, units = "cm")
+
+
+
+pmsi_adult_comp_toPlot <- pmsi_adult_comp_catchment_poparea %>% 
+  group_by(FINESS_Hosp, RegCode, DepCode, PMSIcode) %>% 
+  summarise(n_Hosp = mean(n_Hosp, na.rm = T), catchmentHosp = mean(catchmentHosp, na.rm = T), .groups = "drop") %>% 
+  filter(!is.na(FINESS_Hosp)) %>% 
+  transmute(PMSIcode = factor(PMSIcode, shp_pmsi$PMSIcode), FINESS_Hosp = FINESS_Hosp %>% fct_drop(only = "ALL"), catchmentHosp) %>% 
+  complete(PMSIcode, FINESS_Hosp, fill = list(catchmentHosp = NA))
+
+pmsi_adult_compamb_toPlot <- pmsi_adult_compamb_catchment_poparea %>% 
+  group_by(FINESS_Hosp, RegCode, DepCode, PMSIcode) %>% 
+  summarise(n_Hosp = mean(n_Hosp, na.rm = T), catchmentHosp = mean(catchmentHosp, na.rm = T), .groups = "drop") %>% 
+  filter(!is.na(FINESS_Hosp)) %>% 
+  transmute(PMSIcode = factor(PMSIcode, shp_pmsi$PMSIcode), FINESS_Hosp = FINESS_Hosp %>% fct_drop(only = "ALL"), catchmentHosp) %>% 
+  complete(PMSIcode, FINESS_Hosp, fill = list(catchmentHosp = NA))
+
+
+ggplot() +
+  geom_sf(data = shp_pmsi %>% 
+            # filter(RegCode %in% c("27", "44", "84", "93")) %>%
+            # filter(RegCode %in% c("27", "84")) %>% 
+            st_transform(st_crs(shp_reg)) %>% 
+            left_join(
+              # pmsi_adult_comp_toPlot
+              pmsi_adult_compamb_toPlot
+            )
+          # filter(!grepl("^830100558", Geo_Hosp))
+          ,
+          
+          aes(fill = catchmentHosp/Area_km2), colour = NA) + 
+  # geom_sf(data = shp_dep #%>% 
+  #           # left_join(dep_reg %>% select(DepCode, RegCode)) %>% 
+  #           # filter(RegCode %in% c("27", "44", "84", "93")), 
+  #           # filter(RegCode %in% c("27", "84"))
+  #         , 
+  #         linewidth = 0.1, colour = "grey60", fill = NA) + 
+  # geom_sf(data = shp_reg 
+  #           # filter(RegCode %in% c("27", "44", "84", "93")), 
+  #           # filter(RegCode %in% c("27", "84"))
+  #         ,
+  #         linewidth = 0.2, colour = "black", fill = NA) + 
+  # # facet_wrap(.~Geo_Hosp, nrow = 2) + 
+  # # scale_fill_continuous(trans = "log10", na.value = "lightgrey"
+  # #                       # breaks = c(0.01, 0.1, 1, 10, 100), 
+  # #                       # labels = scales::label_number_auto()
+  # #                       # labels = c("0.01", "0.1", "1", "10", "100")
+  # # ) +
+  scale_fill_gradientn(colours = density_colour_scale, trans = "log10", na.value = na_colour) +
+  facet_wrap(.~FINESS_Hosp, nrow = 2) +
+  theme(panel.background = element_blank(), 
+        strip.text = element_text(size = 7), 
+        axis.text = element_blank(), 
+        axis.ticks = element_blank()) + 
+  labs(fill = "Catchment density\n(persons per km2)")
 
 
 # out of department hospital usage

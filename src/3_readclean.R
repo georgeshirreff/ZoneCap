@@ -222,6 +222,49 @@ pmsi_ageyear_hcl_raw <- purrr::map2(.x = gr_ara$Year, .y = gr_ara$age_group, ~{
 }) %>% 
   {do.call("rbind", .)}
 
+trhosp_abb_vec = c("ALL", "HCL", "CHUB", "AP-HP", "Pradel", "HautLeveque", "Lannelongue")
+trhosp_vec = c("ALL", 
+               "690781810 - HOSPICES CIVILS DE LYON",
+               "330781196 - CHU DE BORDEAUX",
+               "750712184 - AP-HP",
+               "690784186 - HÔPITAL LOUIS PRADEL - HCL",
+               "330783648 - HÔPITAL HAUT-LEVEQUE - CHU",
+               "920000684 - CENTRE CHIRURGICAL MARIE LANNELONGUE")
+
+gr_transplant <- expand.grid(list(SeasonHalf = c("22-23a", "22-23b", "23-24a", "23-24b"), 
+                                  Hosp = trhosp_abb_vec))
+
+
+
+dep_adult_comp_raw <- purrr::map2(.x = gr_transplant$SeasonHalf, .y = gr_transplant$Hosp, ~{
+  readxl::read_excel(paste0("data/ATIH/TransplantDenom/mco_MET_18+_", .y, "_", "Comp_", .x, "_Resp_DEP.xlsx"), skip = 1) %>% 
+    mutate(SeasonHalf = .x, 
+           Hosp = .y)
+}) %>% 
+  { do.call("rbind", .)}
+
+dep_adult_compamb_raw <- purrr::map2(.x = gr_transplant$SeasonHalf, .y = gr_transplant$Hosp, ~{
+  readxl::read_excel(paste0("data/ATIH/TransplantDenom/mco_MET_18+_", .y, "_", "CompAmb_", .x, "_Resp_DEP.xlsx"), skip = 1) %>% 
+    mutate(SeasonHalf = .x, 
+           Hosp = .y)
+}) %>% 
+  { do.call("rbind", .)}
+
+pmsi_adult_comp_raw <- purrr::map2(.x = gr_transplant$SeasonHalf, .y = gr_transplant$Hosp, ~{
+  readxl::read_excel(paste0("data/ATIH/TransplantDenom/mco_MET_18+_", .y, "_", "Comp_", .x, "_Resp_PMSI.xlsx"), skip = 1) %>% 
+    mutate(SeasonHalf = .x, 
+           Hosp = .y)
+}) %>% 
+  { do.call("rbind", .)}
+
+pmsi_adult_compamb_raw <- purrr::map2(.x = gr_transplant$SeasonHalf, .y = gr_transplant$Hosp, ~{
+  readxl::read_excel(paste0("data/ATIH/TransplantDenom/mco_MET_18+_", .y, "_", "CompAmb_", .x, "_Resp_PMSI.xlsx"), skip = 1) %>% 
+    mutate(SeasonHalf = .x, 
+           Hosp = .y)
+}) %>% 
+  { do.call("rbind", .)}
+
+
 ##### cleaning functions #####
 
 clean_RegCode <- function(tib){
@@ -717,6 +760,201 @@ pmsi_ageyear_hcl <- pmsi_ageyear_hcl_raw %>%
   relocate(RegCode, .before = "DepCode") %>% 
   transmute(FINESS_Hosp, age_group, RegCode, DepCode, PMSIcode, PMSIcode_Name, OtherCountry, Year, n)
 
+
+# adults, for transplant study
+
+dep_adult_comp <- dep_adult_comp_raw %>% 
+  transmute(FINESS_Hosp = trhosp_vec[match(Hosp, trhosp_abb_vec)] %>% factor(levels = trhosp_vec),  #rename
+            DepCode = `Département (domiciliation patient)`, #rename
+            Season = gsub("([0-9]{2})-([0-9]{2})([a-b])", "\\1/\\2", SeasonHalf), 
+            Half = gsub("([0-9]{2})-([0-9]{2})([a-b])", "\\3", SeasonHalf), 
+            n = as.numeric(gsub(" ", "", Effectif))) %>% 
+  mutate(across(DepCode, ~gsub("^Autres.*", "Others", .x))) %>% 
+  # clean_FinessHosp %>% 
+  clean_DepCode %>% 
+  group_by(DepCode, FINESS_Hosp, Season) %>% # wherever there are not too halves of the season available, these have to be aggregated into the "Others" dept for that hospital
+  mutate(DepCode = ifelse(n() == 1, "Others", DepCode)) %>% 
+  summarise(n = sum(n), .groups = "drop") %>% # this somes over the season halves and over the Others with only one season
+  left_join(dep_reg %>% select(DepCode, RegCode)) %>% 
+  mutate(Year = paste0("20", substr(Season, 4, 5)) %>% as.numeric) %>% 
+  select(FINESS_Hosp, RegCode, DepCode, Season, Year, everything()) %>% 
+  arrange(FINESS_Hosp, RegCode, DepCode, Season) 
+
+dep_adult_compamb <- dep_adult_compamb_raw %>% 
+  transmute(FINESS_Hosp = trhosp_vec[match(Hosp, trhosp_abb_vec)] %>% factor(levels = trhosp_vec),  #rename
+            DepCode = `Département (domiciliation patient)`, #rename
+            Season = gsub("([0-9]{2})-([0-9]{2})([a-b])", "\\1/\\2", SeasonHalf), 
+            Half = gsub("([0-9]{2})-([0-9]{2})([a-b])", "\\3", SeasonHalf), 
+            n = as.numeric(gsub(" ", "", Effectif))) %>% 
+  mutate(across(DepCode, ~gsub("^Autres.*", "Others", .x))) %>% 
+  # clean_FinessHosp %>% 
+  clean_DepCode %>% 
+  group_by(DepCode, FINESS_Hosp, Season) %>% # wherever there are not too halves of the season available, these have to be aggregated into the "Others" dept for that hospital
+  mutate(DepCode = ifelse(n() == 1, "Others", DepCode)) %>% 
+  summarise(n = sum(n), .groups = "drop") %>% # this somes over the season halves and over the Others with only one season
+  left_join(dep_reg %>% select(DepCode, RegCode)) %>% 
+  mutate(Year = paste0("20", substr(Season, 4, 5)) %>% as.numeric) %>% 
+  select(FINESS_Hosp, RegCode, DepCode, Season, Year, everything()) %>% 
+  arrange(FINESS_Hosp, RegCode, DepCode, Season) 
+
+
+
+pmsi_adult_comp <- pmsi_adult_comp_raw %>% 
+  transmute(FINESS_Hosp = trhosp_vec[match(Hosp, trhosp_abb_vec)] %>% factor(levels = trhosp_vec),  #rename
+            PMSIcode = `Code géographique de domiciliation du patient`,
+            Season = gsub("([0-9]{2})-([0-9]{2})([a-b])", "\\1/\\2", SeasonHalf), 
+            Half = gsub("([0-9]{2})-([0-9]{2})([a-b])", "\\3", SeasonHalf), 
+            n = as.numeric(gsub(" ", "", Effectif))) %>% 
+  mutate(across(PMSIcode, ~gsub("^Autres.*", "Others", .x))) %>% 
+  group_by(PMSIcode, FINESS_Hosp, Season) %>% # wherever there are not too halves of the season available, these have to be aggregated into the "Others" dept for that hospital
+  mutate(PMSIcode = ifelse(n() == 1, "Others", PMSIcode)) %>% 
+  summarise(n = sum(n), .groups = "drop") %>% # this somes over the season halves and over the Others with only one season
+  clean_PMSIcode %>% 
+  # left_join(dep_reg %>% select(DepCode, RegCode)) %>% 
+  mutate(Year = paste0("20", substr(Season, 4, 5)) %>% as.numeric) %>% 
+  select(FINESS_Hosp, RegCode, DepCode, PMSIcode, PMSIcode_Name, OtherCountry, Season, Year, everything()) %>% 
+  arrange(FINESS_Hosp, RegCode, DepCode, PMSIcode, Season)
+  
+pmsi_adult_compamb <- pmsi_adult_compamb_raw %>% 
+  transmute(FINESS_Hosp = trhosp_vec[match(Hosp, trhosp_abb_vec)] %>% factor(levels = trhosp_vec),  #rename
+            PMSIcode = `Code géographique de domiciliation du patient`,
+            Season = gsub("([0-9]{2})-([0-9]{2})([a-b])", "\\1/\\2", SeasonHalf), 
+            Half = gsub("([0-9]{2})-([0-9]{2})([a-b])", "\\3", SeasonHalf), 
+            n = as.numeric(gsub(" ", "", Effectif))) %>% 
+  mutate(across(PMSIcode, ~gsub("^Autres.*", "Others", .x))) %>% 
+  group_by(PMSIcode, FINESS_Hosp, Season) %>% # wherever there are not too halves of the season available, these have to be aggregated into the "Others" dept for that hospital
+  mutate(PMSIcode = ifelse(n() == 1, "Others", PMSIcode)) %>% 
+  summarise(n = sum(n), .groups = "drop") %>% # this somes over the season halves and over the Others with only one season
+  clean_PMSIcode %>% 
+  # left_join(dep_reg %>% select(DepCode, RegCode)) %>% 
+  mutate(Year = paste0("20", substr(Season, 4, 5)) %>% as.numeric) %>% 
+  select(FINESS_Hosp, RegCode, DepCode, PMSIcode, PMSIcode_Name, OtherCountry, Season, Year, everything()) %>% 
+  arrange(FINESS_Hosp, RegCode, DepCode, PMSIcode, Season) 
+
+# create ambulatoire objects from the comp and compamb objects
+
+dep_adult_amb <- full_join(
+  dep_adult_compamb %>% rename(n_compamb = n),
+  dep_adult_comp %>% rename(n_comp = n)
+) %>% 
+  select(-RegCode) %>% 
+  mutate(DepCode = ifelse(is.na(n_comp) | is.na(n_compamb), "Others", DepCode)) %>% 
+  group_by(FINESS_Hosp, DepCode, Season, Year) %>% 
+  summarise(across(starts_with("n_"), ~sum(.x, na.rm = T)), .groups = "drop") %>% 
+  left_join(dep_reg %>% select(DepCode, RegCode)) %>% 
+  mutate(n = n_compamb - n_comp) %>% 
+  select(-starts_with("n_")) %>% 
+  select(FINESS_Hosp, RegCode, DepCode, Season, Year, n)
+
+pmsi_adult_amb <- full_join(
+  pmsi_adult_compamb %>% rename(n_compamb = n),
+  pmsi_adult_comp %>% rename(n_comp = n)
+) %>% 
+  select(-RegCode) %>% 
+  mutate(PMSIcode = ifelse(is.na(n_comp) | is.na(n_compamb), "Others", PMSIcode), 
+         DepCode = ifelse(is.na(n_comp) | is.na(n_compamb), "Others", DepCode), 
+         PMSIcode_Name = ifelse(is.na(n_comp) | is.na(n_compamb), NA, PMSIcode_Name), 
+         OtherCountry = ifelse(is.na(n_comp) | is.na(n_compamb), NA, OtherCountry)
+  ) %>% 
+  group_by(FINESS_Hosp, DepCode, PMSIcode, PMSIcode_Name, OtherCountry, Season, Year) %>% 
+  summarise(across(starts_with("n_"), ~sum(.x, na.rm = T)), .groups = "drop") %>% 
+  left_join(dep_reg %>% select(DepCode, RegCode)) %>% 
+  mutate(n = n_compamb - n_comp) %>% 
+  select(-starts_with("n_")) %>% 
+  select(FINESS_Hosp, RegCode, everything())
+
+# read RSV numerator data
+
+adult_comp_RSV_raw <- purrr::map(.x = c("22-23a", "22-23b", "23-24a", "23-24b"), ~{
+  readxl::read_excel(paste0("data/ATIH/TransplantNumerator/mco_MET_18+_", "Finess", "_", "Comp_", .x, "_RSV_Anywhere.xlsx"), skip = 1) %>% 
+    mutate(SeasonHalf = .x)
+}) %>% 
+  { do.call("rbind", .)}
+
+adult_compamb_RSV_raw <- purrr::map(.x = c("22-23a", "22-23b", "23-24a", "23-24b"), ~{
+  readxl::read_excel(paste0("data/ATIH/TransplantNumerator/mco_MET_18+_", "Finess", "_", "CompAmb_", .x, "_RSV_Anywhere.xlsx"), skip = 1) %>% 
+    mutate(SeasonHalf = .x)
+}) %>% 
+  { do.call("rbind", .)}
+
+dep_adult_comp_RSV_raw <- purrr::map(.x = c("22-23a", "22-23b", "23-24a", "23-24b"), ~{
+  readxl::read_excel(paste0("data/ATIH/TransplantValidate/mco_MET_18+_", "Comp_", "ALL_", .x, "_RSV_DEP.xlsx"), skip = 1) %>% 
+    mutate(SeasonHalf = .x)
+}) %>% 
+  { do.call("rbind", .)}
+
+dep_adult_compamb_RSV_raw <- purrr::map(.x = c("22-23a", "22-23b", "23-24a", "23-24b"), ~{
+  readxl::read_excel(paste0("data/ATIH/TransplantValidate/mco_MET_18+_", "CompAmb_", "ALL_", .x, "_RSV_DEP.xlsx"), skip = 1) %>% 
+    mutate(SeasonHalf = .x)
+}) %>% 
+  { do.call("rbind", .)}
+
+adult_comp_RSV <- adult_comp_RSV_raw %>% 
+  transmute(FINESS_Hosp = `Finess PMSI` %>% factor(levels = trhosp_vec[2:4]),  #rename
+            Season = gsub("([0-9]{2})-([0-9]{2})([a-b])", "\\1/\\2", SeasonHalf), 
+            Half = gsub("([0-9]{2})-([0-9]{2})([a-b])", "\\3", SeasonHalf), 
+            n = as.numeric(gsub(" ", "", Effectif))) %>% 
+  group_by(FINESS_Hosp, Season) %>% # wherever there are not too halves of the season available, these have to be aggregated into the "Others" dept for that hospital
+  summarise(n = sum(n), .groups = "drop")
+
+adult_compamb_RSV <- adult_compamb_RSV_raw %>% 
+  transmute(FINESS_Hosp = `Finess PMSI` %>% factor(levels = trhosp_vec[2:4]),  #rename
+            Season = gsub("([0-9]{2})-([0-9]{2})([a-b])", "\\1/\\2", SeasonHalf), 
+            Half = gsub("([0-9]{2})-([0-9]{2})([a-b])", "\\3", SeasonHalf), 
+            n = as.numeric(gsub(" ", "", Effectif))) %>% 
+  group_by(FINESS_Hosp, Season) %>% # wherever there are not too halves of the season available, these have to be aggregated into the "Others" dept for that hospital
+  summarise(n = sum(n), .groups = "drop")
+
+adult_amb_RSV <- full_join(
+  adult_comp_RSV %>% rename(n_comp = n), 
+  adult_compamb_RSV %>% rename(n_compamb = n)) %>% 
+  mutate(n = n_compamb - n_comp) %>% 
+  select(-starts_with("n_"))
+
+dep_adult_comp_RSV <- dep_adult_comp_RSV_raw %>% 
+  transmute(DepCode = `Département (domiciliation patient)`, #rename
+            Season = gsub("([0-9]{2})-([0-9]{2})([a-b])", "\\1/\\2", SeasonHalf), 
+            Half = gsub("([0-9]{2})-([0-9]{2})([a-b])", "\\3", SeasonHalf), 
+            n = as.numeric(gsub(" ", "", Effectif))) %>% 
+  mutate(across(DepCode, ~gsub("^Autres.*", "Others", .x))) %>% 
+  # clean_FinessHosp %>% 
+  clean_DepCode %>% 
+  group_by(DepCode, Season) %>% # wherever there are not too halves of the season available, these have to be aggregated into the "Others" dept for that hospital
+  mutate(DepCode = ifelse(n() == 1, "Others", DepCode)) %>% 
+  summarise(n = sum(n), .groups = "drop") %>% # this somes over the season halves and over the Others with only one season
+  left_join(dep_reg %>% select(DepCode, RegCode)) %>% 
+  mutate(Year = paste0("20", substr(Season, 4, 5)) %>% as.numeric) %>% 
+  select(RegCode, DepCode, Season, Year, everything()) %>% 
+  arrange(RegCode, DepCode, Season) 
+
+dep_adult_compamb_RSV <- dep_adult_compamb_RSV_raw %>% 
+  transmute(DepCode = `Département (domiciliation patient)`, #rename
+            Season = gsub("([0-9]{2})-([0-9]{2})([a-b])", "\\1/\\2", SeasonHalf), 
+            Half = gsub("([0-9]{2})-([0-9]{2})([a-b])", "\\3", SeasonHalf), 
+            n = as.numeric(gsub(" ", "", Effectif))) %>% 
+  mutate(across(DepCode, ~gsub("^Autres.*", "Others", .x))) %>% 
+  # clean_FinessHosp %>% 
+  clean_DepCode %>% 
+  group_by(DepCode, Season) %>% # wherever there are not too halves of the season available, these have to be aggregated into the "Others" dept for that hospital
+  mutate(DepCode = ifelse(n() == 1, "Others", DepCode)) %>% 
+  summarise(n = sum(n), .groups = "drop") %>% # this somes over the season halves and over the Others with only one season
+  left_join(dep_reg %>% select(DepCode, RegCode)) %>% 
+  mutate(Year = paste0("20", substr(Season, 4, 5)) %>% as.numeric) %>% 
+  select(RegCode, DepCode, Season, Year, everything()) %>% 
+  arrange(RegCode, DepCode, Season) 
+
+dep_adult_amb_RSV <- full_join(
+  dep_adult_compamb_RSV %>% rename(n_compamb = n),
+  dep_adult_comp_RSV %>% rename(n_comp = n)
+) %>% 
+  select(-RegCode) %>% 
+  mutate(DepCode = ifelse(is.na(n_comp) | is.na(n_compamb), "Others", DepCode)) %>% 
+  group_by(DepCode, Season, Year) %>% 
+  summarise(across(starts_with("n_"), ~sum(.x, na.rm = T)), .groups = "drop") %>% 
+  left_join(dep_reg %>% select(DepCode, RegCode)) %>% 
+  mutate(n = n_compamb - n_comp) %>% 
+  select(-starts_with("n_")) %>% 
+  select(RegCode, DepCode, Season, Year, n)
 
 # Urg ARA'data needs special treatment
 

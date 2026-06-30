@@ -1,6 +1,6 @@
 
 library(tidyverse)
-library(lemon)
+# library(lemon)
 
 # conduct analyses and make basic tables and figures
 
@@ -203,6 +203,69 @@ dep_year_diag_catchment_poparea <- dep_year_diag_finess %>% #can replace the pre
   mutate(pHosp = n_Hosp/n, 
          catchmentHosp = Pop*pHosp, 
          catchmentArea = pHosp*Area_km2)
+
+dep_adult_comp_catchment_poparea <- dep_adult_comp %>% 
+  filter(FINESS_Hosp != "ALL") %>% 
+  rename(n_Hosp = n) %>% 
+  left_join(dep_adult_comp %>% 
+              filter(FINESS_Hosp %in% "ALL") %>% 
+              select(-FINESS_Hosp)) %>% 
+  left_join(dep_pop_age %>% filter(age_group %in% c("18-64", "65-79", "80+")) %>% group_by(Year, DepCode) %>% summarise(Pop = sum(Pop))) %>% 
+  left_join(shp_dep %>% 
+              select(DepCode, Area_km2) %>% 
+              st_drop_geometry() %>% 
+              ungroup) %>% 
+  mutate(pHosp = n_Hosp/n, 
+         catchmentHosp = Pop*pHosp, 
+         catchmentArea = pHosp*Area_km2)
+
+dep_adult_amb_catchment_poparea <- dep_adult_amb %>% 
+  filter(FINESS_Hosp != "ALL") %>% 
+  rename(n_Hosp = n) %>% 
+  left_join(dep_adult_comp %>% 
+              filter(FINESS_Hosp == "ALL") %>% 
+              select(-FINESS_Hosp)) %>% 
+  left_join(dep_pop_age %>% filter(age_group %in% c("18-64", "65-79", "80+")) %>% group_by(Year, DepCode) %>% summarise(Pop = sum(Pop))) %>% 
+  left_join(shp_dep %>% 
+              select(DepCode, Area_km2) %>% 
+              st_drop_geometry() %>% 
+              ungroup) %>% 
+  mutate(pHosp = n_Hosp/n, 
+         catchmentHosp = Pop*pHosp, 
+         catchmentArea = pHosp*Area_km2)
+
+pmsi_adult_comp_catchment_poparea <- pmsi_adult_comp %>% 
+  filter(FINESS_Hosp != "ALL") %>% 
+  rename(n_Hosp = n) %>% 
+  left_join(pmsi_adult_comp %>% 
+              filter(FINESS_Hosp == "ALL") %>% 
+              select(-FINESS_Hosp)) %>% 
+  left_join(pmsi_pop_age %>% filter(age_group %in% c("18-64", "65-79", "80+")) %>% group_by(Year, PMSIcode) %>% summarise(Pop = sum(Pop))) %>% 
+  left_join(shp_pmsi %>% 
+              select(PMSIcode, Area_km2) %>% 
+              st_drop_geometry() %>% 
+              ungroup) %>% 
+  mutate(pHosp = n_Hosp/n, 
+         catchmentHosp = Pop*pHosp, 
+         catchmentArea = pHosp*Area_km2)
+
+pmsi_adult_amb_catchment_poparea <-
+  pmsi_adult_amb %>% 
+  filter(FINESS_Hosp != "ALL") %>% 
+  rename(n_Hosp = n) %>% 
+  left_join(pmsi_adult_compamb %>% 
+              filter(FINESS_Hosp == "ALL") %>% 
+              select(-FINESS_Hosp)) %>% 
+  left_join(pmsi_pop_age %>% filter(age_group %in% c("18-64", "65-79", "80+")) %>% group_by(Year, PMSIcode) %>% summarise(Pop = sum(Pop))) %>% 
+  left_join(shp_pmsi %>% 
+              select(PMSIcode, Area_km2) %>% 
+              st_drop_geometry() %>% 
+              ungroup) %>% 
+  mutate(pHosp = n_Hosp/n, 
+         catchmentHosp = Pop*pHosp, 
+         catchmentArea = pHosp*Area_km2)
+
+
 
 
 # dep_year_diag_finess
@@ -505,6 +568,8 @@ rbind(reg_age20year_finess_catchment %>%
 
 ggsave("output/dep_reg_pmsi_comparison_HCL.png", width = 20, height = 10, units = "cm", dpi = 300)
 
+
+
 # proportion of masking
 
 
@@ -669,6 +734,63 @@ dep_year_diag_catchment_poparea %>%
          p_nHosp = n_Hosp/sum(n_Hosp)) %>% 
   pivot_wider(id_cols = DiagCat, names_from = FINESS_Hosp, values_from = p_catchmentHosp, values_fn = ~scales::percent(.x, accuracy = 0.1)) %>% 
   write_csv2("output/dep_finess10_diagcat_pct.csv")
+
+
+# calculate adult respiratory catchment populations
+View(dep_adult_amb_catchment_summ)
+dep_adult_comp_catchment_summ <- dep_adult_comp_catchment_poparea %>% 
+  group_by(FINESS_Hosp, Season) %>% 
+  summarise(p_masked = sum(n_Hosp[DepCode == "Others"])/sum(n_Hosp), 
+            catchmentHosp = sum(catchmentHosp, na.rm = T), .groups = "drop")
+
+dep_adult_amb_catchment_summ <- dep_adult_amb_catchment_poparea %>% 
+  group_by(FINESS_Hosp, Season) %>% 
+  summarise(p_masked = sum(n_Hosp[DepCode == "Others"])/sum(n_Hosp), 
+            catchmentHosp = sum(catchmentHosp, na.rm = T), .groups = "drop")
+
+pmsi_adult_comp_catchment_summ <- pmsi_adult_comp_catchment_poparea %>% 
+  group_by(FINESS_Hosp, Season) %>% 
+  summarise(p_masked = sum(n_Hosp[DepCode == "Others"])/sum(n_Hosp), 
+            catchmentHosp = sum(catchmentHosp, na.rm = T), .groups = "drop")
+
+pmsi_adult_amb_catchment_summ <- pmsi_adult_amb_catchment_poparea %>% 
+  group_by(FINESS_Hosp, Season) %>% 
+  summarise(p_masked = sum(n_Hosp[DepCode == "Others"])/sum(n_Hosp), 
+            catchmentHosp = sum(catchmentHosp, na.rm = T), .groups = "drop")
+
+
+# calculate RSV incidence
+
+adult_comp_RSV %>% 
+  left_join(dep_adult_comp_catchment_summ) %>% 
+  mutate(Inc1e5 = n/catchmentHosp*1e5) %>% 
+  write_csv("output/HospGroups_Comp_catchment_RSV.csv")
+adult_amb_RSV %>% 
+  left_join(dep_adult_amb_catchment_summ) %>% 
+  mutate(Inc1e5 = n/catchmentHosp*1e5) %>% 
+  write_csv("output/HospGroups_Amb_catchment_RSV.csv")
+
+adult_comp_RSV %>% 
+  left_join(pmsi_adult_comp_catchment_summ) %>% 
+  mutate(Inc1e5 = n/catchmentHosp*1e5)
+adult_amb_RSV %>% 
+  left_join(pmsi_adult_amb_catchment_summ) %>% 
+  mutate(Inc1e5 = n/catchmentHosp*1e5)
+
+left_join(adult_comp_RSV %>% 
+  left_join(dep_adult_comp_catchment_summ %>% select(-p_masked)) %>% 
+    mutate(source = "PMSI") %>% 
+  rename(n_comp = n, catchmentHosp_comp = catchmentHosp), 
+  adult_amb_RSV %>% 
+    left_join(dep_adult_amb_catchment_summ %>% select(-p_masked)) %>% 
+    mutate(source = "PMSI") %>% 
+    rename(n_amb = n, catchmentHosp_amb = catchmentHosp)) %>% 
+    write_csv("output/HospGroups_Comp_Amb_catchment_RSV.csv")
+
+
+
+
+
 
 # Urg'ARA table
 
